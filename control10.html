@@ -1,0 +1,2601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWPL Cricket Scoreboard - Control Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .swpl-banner {
+            background: linear-gradient(to right, #1a237e, #283593);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .swpl-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .swpl-banner i {
+            font-size: 2.5rem;
+            color: #ffd700;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .admin-header {
+            background: white;
+            padding: 25px 30px;
+            border-bottom: 3px solid #e0e0e0;
+        }
+        
+        .admin-title {
+            color: #1a237e;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .admin-title i {
+            color: #4caf50;
+        }
+        
+        .admin-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .connection-status {
+            background: #f5f5f5;
+            padding: 12px 20px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .admin-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            padding: 30px;
+        }
+        
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .panel-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .section-title {
+            color: #1a237e;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .section-title i {
+            color: #4caf50;
+        }
+        
+        .quick-runs-title {
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .run-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .run-btn {
+            background: linear-gradient(145deg, #f0f0f0, #ffffff);
+            border: none;
+            border-radius: 12px;
+            padding: 20px 10px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1),
+                       -5px -5px 15px rgba(255,255,255,0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .run-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.15),
+                       -8px -8px 20px rgba(255,255,255,0.8);
+        }
+        
+        .run-btn:active {
+            transform: translateY(0);
+        }
+        
+        .striker-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ff5722;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        
+        .run-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        /* Individual run button colors */
+        .run-0 { background: linear-gradient(145deg, #f5f5f5, #ffffff); color: #666; }
+        .run-1 { background: linear-gradient(145deg, #e3f2fd, #bbdefb); color: #1565c0; }
+        .run-2 { background: linear-gradient(145deg, #e8f5e9, #c8e6c9); color: #2e7d32; }
+        .run-3 { background: linear-gradient(145deg, #fff3e0, #ffe0b2); color: #f57c00; }
+        .run-4 { background: linear-gradient(145deg, #e8eaf6, #c5cae9); color: #3949ab; }
+        .run-6 { background: linear-gradient(145deg, #fce4ec, #f8bbd9); color: #c2185b; }
+        
+        .extra-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .extra-btn {
+            background: #f5f5f5;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .extra-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .extra-btn i {
+            font-size: 1.3rem;
+        }
+        
+        .wicket-btn { background: #ffebee; color: #d32f2f; }
+        .wide-btn { background: #e3f2fd; color: #1976d2; }
+        .noball-btn { background: #fff3e0; color: #f57c00; }
+        .bye-btn { background: #e8f5e9; color: #388e3c; }
+        .legbye-btn { background: #f3e5f5; color: #7b1fa2; }
+        
+        .extra-runs-input {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .extra-runs-input label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .extra-runs-input input {
+            width: 60px;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .undo-section {
+            text-align: center;
+        }
+        
+        .undo-btn {
+            background: linear-gradient(to right, #ff9800, #ff5722);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .undo-btn:hover {
+            background: linear-gradient(to right, #f57c00, #e64a19);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 87, 34, 0.4);
+        }
+        
+        .player-management-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .player-input-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        
+        .player-input-group.active {
+            background: #e8f5e9;
+            border-color: #4caf50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+        
+        .player-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .player-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .player-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: border-color 0.3s;
+        }
+        
+        .player-input:focus {
+            outline: none;
+            border-color: #4caf50;
+        }
+        
+        .update-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .update-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .striker-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .striker-toggle input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .striker-toggle label {
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+        }
+        
+        .add-player-section {
+            background: #f0f7ff;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border: 2px dashed #bbdefb;
+        }
+        
+        .add-player-title {
+            color: #1976d2;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .add-player-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .input-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        
+        .input-field {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: white;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #4caf50;
+        }
+        
+        select.input-field {
+            cursor: pointer;
+        }
+        
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .match-status-box {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .match-status-title {
+            color: #1a237e;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .status-display {
+            background: linear-gradient(to right, #1a237e, #283593);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-item span:first-child {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .status-value {
+            font-weight: 700;
+            color: #1a237e;
+            font-size: 1.1rem;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            background: #f5f5f5;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .next-over-btn { background: #e3f2fd; color: #1976d2; }
+        .undo-action-btn { background: #fff3e0; color: #f57c00; }
+        .reset-btn { background: #ffebee; color: #d32f2f; }
+        .save-btn { background: #e8f5e9; color: #388e3c; }
+        .pdf-btn { 
+            background: linear-gradient(to right, #d32f2f, #f44336);
+            color: white;
+        }
+        
+        .pdf-btn:hover {
+            background: linear-gradient(to right, #c62828, #e53935);
+        }
+        
+        .target-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .target-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        
+        .target-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .target-info {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .run-log {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            height: 100%;
+        }
+        
+        .log-title {
+            color: #1a237e;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .log-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .log-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .log-item .runs {
+            font-weight: 700;
+            color: #1a237e;
+            font-size: 1.1rem;
+        }
+        
+        .log-item .batsman {
+            color: #666;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        /* নোটিফিকেশন */
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #4caf50;
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            font-weight: 600;
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* নতুন মডাল স্টাইল */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: #1a237e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .modal-input-group {
+            margin-bottom: 20px;
+        }
+        
+        .modal-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #424242;
+        }
+        
+        .modal-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #bdbdbd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .modal-confirm {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .modal-cancel {
+            background: #f44336;
+            color: white;
+        }
+        
+        .modal-confirm:hover {
+            background: #45a049;
+        }
+        
+        .modal-cancel:hover {
+            background: #d32f2f;
+        }
+        
+        /* ইনিংস এন্ড মডাল */
+        .end-innings-modal .modal-content {
+            max-width: 600px;
+        }
+        
+        .innings-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .innings-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a237e;
+            margin: 10px 0;
+        }
+        
+        .innings-info {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .target-display-large {
+            background: linear-gradient(135deg, #c2185b 0%, #e91e63 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .target-label {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .target-value-large {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 10px 0;
+        }
+        
+        /* রেসপন্সিভ ডিজাইন */
+        @media (max-width: 1200px) {
+            .admin-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .add-player-form {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .run-buttons-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .extra-buttons-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .action-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .player-input-row {
+                flex-direction: column;
+            }
+            
+            .admin-title {
+                font-size: 1.8rem;
+            }
+            
+            .admin-content {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .run-buttons-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="swpl-banner">
+            <i class="fas fa-trophy"></i> SOCIAL WORK PREMIER LEAGUE - SWPL
+        </div>
+        
+        <div class="admin-header">
+            <h1 class="admin-title">
+                <i class="fas fa-sliders-h"></i> SCOREBOARD CONTROL PANEL
+            </h1>
+            <p class="admin-subtitle">Control the live scoreboard from here. Updates appear instantly on the viewer screen.</p>
+            <div class="connection-status">
+                <span class="status-dot"></span>
+                Connected to Viewer Screen • Updates: <span id="updateCount">0</span>
+            </div>
+        </div>
+        
+        <div class="admin-content">
+            <!-- লেফট সাইড - কন্ট্রোল প্যানেল -->
+            <div class="control-panel">
+                <!-- রান ইনপুট সেকশন -->
+                <div class="panel-section">
+                    <div class="section-title">
+                        <i class="fas fa-bolt"></i> Quick Run Input
+                    </div>
+                    
+                    <div class="quick-runs-title">Click to add runs</div>
+                    
+                    <!-- রান বাটন গ্রিড -->
+                    <div class="run-buttons-grid">
+                        <button class="run-btn run-0" data-runs="0">
+                            <div class="striker-badge">S</div>
+                            <span>0</span>
+                            <span class="run-text">DOT</span>
+                        </button>
+                        <button class="run-btn run-1" data-runs="1">
+                            <div class="striker-badge">S</div>
+                            <span>1</span>
+                            <span class="run-text">RUN</span>
+                        </button>
+                        <button class="run-btn run-2" data-runs="2">
+                            <div class="striker-badge">S</div>
+                            <span>2</span>
+                            <span class="run-text">RUNS</span>
+                        </button>
+                        <button class="run-btn run-3" data-runs="3">
+                            <div class="striker-badge">S</div>
+                            <span>3</span>
+                            <span class="run-text">RUNS</span>
+                        </button>
+                        <button class="run-btn run-4" data-runs="4">
+                            <div class="striker-badge">S</div>
+                            <span>4</span>
+                            <span class="run-text">FOUR</span>
+                        </button>
+                        <button class="run-btn run-6" data-runs="6">
+                            <div class="striker-badge">S</div>
+                            <span>6</span>
+                            <span class="run-text">SIX</span>
+                        </button>
+                    </div>
+                    
+                    <!-- এক্সট্রা বাটন গ্রিড -->
+                    <div class="extra-buttons-grid">
+                        <button class="extra-btn wicket-btn" id="wicketBtn">
+                            <i class="fas fa-times"></i>
+                            <span>WICKET</span>
+                        </button>
+                        <button class="extra-btn wide-btn" id="wideBtn">
+                            <i class="fas fa-arrows-alt-h"></i>
+                            <span>WIDE</span>
+                        </button>
+                        <button class="extra-btn noball-btn" id="noballBtn">
+                            <i class="fas fa-ban"></i>
+                            <span>NO BALL</span>
+                        </button>
+                        <button class="extra-btn bye-btn" id="byeBtn">
+                            <i class="fas fa-running"></i>
+                            <span>BYE</span>
+                        </button>
+                        <button class="extra-btn legbye-btn" id="legbyeBtn">
+                            <i class="fas fa-user"></i>
+                            <span>LEG BYE</span>
+                        </button>
+                    </div>
+                    
+                    <!-- এক্সট্রা রান ইনপুট -->
+                    <div class="extra-runs-input">
+                        <label for="extraRuns">Extra Runs:</label>
+                        <input type="number" id="extraRuns" value="1" min="1" max="10">
+                        <span>(for Wide/No Ball)</span>
+                    </div>
+                    
+                    <!-- আনডো বাটন -->
+                    <div class="undo-section">
+                        <button class="undo-btn" id="undoBtn">
+                            <i class="fas fa-undo"></i>
+                            UNDO LAST ACTION
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- কারেন্ট প্লেয়ার ম্যানেজমেন্ট -->
+                <div class="panel-section">
+                    <div class="section-title">
+                        <i class="fas fa-users"></i> Current Players
+                    </div>
+                    
+                    <div class="player-management-section">
+                        <!-- ব্যাটসম্যান ১ -->
+                        <div class="player-input-group active" id="batsman1Group">
+                            <div class="player-label">BATSMAN 1 (Striker)</div>
+                            <div class="player-input-row">
+                                <input type="text" class="player-input" id="batsman1Input" value="PLAYER 1" placeholder="Enter name">
+                                <button class="update-btn" id="updateBatsman1Btn">Update</button>
+                            </div>
+                            <div class="striker-toggle">
+                                <input type="checkbox" id="batsman1Striker" checked>
+                                <label for="batsman1Striker">Striker</label>
+                            </div>
+                        </div>
+                        
+                        <!-- ব্যাটসম্যান ২ -->
+                        <div class="player-input-group" id="batsman2Group">
+                            <div class="player-label">BATSMAN 2 (Non-Striker)</div>
+                            <div class="player-input-row">
+                                <input type="text" class="player-input" id="batsman2Input" value="PLAYER 2" placeholder="Enter name">
+                                <button class="update-btn" id="updateBatsman2Btn">Update</button>
+                            </div>
+                            <div class="striker-toggle">
+                                <input type="checkbox" id="batsman2Striker">
+                                <label for="batsman2Striker">Striker</label>
+                            </div>
+                        </div>
+                        
+                        <!-- বর্তমান বোলার -->
+                        <div class="player-input-group" id="bowlerGroup">
+                            <div class="player-label">CURRENT BOWLER</div>
+                            <div class="player-input-row">
+                                <input type="text" class="player-input" id="bowlerInput" value="BOWLER 1" placeholder="Enter name">
+                                <button class="update-btn" id="updateBowlerBtn">Update</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- নতুন প্লেয়ার এড সেকশন -->
+                    <div class="add-player-section">
+                        <div class="add-player-title">
+                            <i class="fas fa-user-plus"></i> Add New Players
+                        </div>
+                        
+                        <div class="add-player-form">
+                            <div class="input-group">
+                                <label class="input-label">New Batsman Name</label>
+                                <input type="text" class="input-field" id="newBatsmanInput" placeholder="Enter new batsman name">
+                                <button class="update-btn" id="addNewBatsmanBtn" style="width: 100%; margin-top: 10px;">
+                                    <i class="fas fa-user-plus"></i> Add Batsman
+                                </button>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label class="input-label">New Bowler Name</label>
+                                <input type="text" class="input-field" id="newBowlerInput" placeholder="Enter new bowler name">
+                                <button class="update-btn" id="addNewBowlerBtn" style="width: 100%; margin-top: 10px;">
+                                    <i class="fas fa-user-plus"></i> Add Bowler
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ম্যাচ সেটআপ -->
+                <div class="panel-section">
+                    <div class="section-title">
+                        <i class="fas fa-cog"></i> Match Setup
+                    </div>
+                    
+                    <div class="player-management-section">
+                        <div class="input-group">
+                            <label class="input-label">Team 1</label>
+                            <input type="text" class="input-field" id="team1Input" value="TEAM A">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label">Team 2</label>
+                            <input type="text" class="input-field" id="team2Input" value="TEAM B">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label">Total Overs</label>
+                            <input type="number" class="input-field" id="totalOversInput" value="20" min="1" max="50">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label">Toss Winner</label>
+                            <select class="input-field" id="tossWinnerInput">
+                                <option value="TEAM A">TEAM A</option>
+                                <option value="TEAM B">TEAM B</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label">Decision</label>
+                            <select class="input-field" id="tossDecisionInput">
+                                <option value="BAT">BAT</option>
+                                <option value="BOWL">BOWL</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Match Status</label>
+                        <select class="input-field" id="matchStatusInput">
+                            <option value="MATCH STARTING SOON">MATCH STARTING SOON</option>
+                            <option value="IN PROGRESS">IN PROGRESS</option>
+                            <option value="RAIN DELAY">RAIN DELAY</option>
+                            <option value="INNINGS BREAK">INNINGS BREAK</option>
+                            <option value="MATCH ENDED">MATCH ENDED</option>
+                        </select>
+                    </div>
+                    
+                    <!-- নতুন: ইনিংস এন্ড বাটন -->
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button class="undo-btn" id="endInningsBtn" style="background: linear-gradient(to right, #9c27b0, #673ab7);">
+                            <i class="fas fa-flag-checkered"></i>
+                            END CURRENT INNINGS
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- রাইট সাইড - ইনফো ও স্ট্যাটাস -->
+            <div class="info-panel">
+                <!-- ম্যাচ স্ট্যাটাস -->
+                <div class="match-status-box">
+                    <div class="match-status-title">MATCH STATUS</div>
+                    <div class="status-display" id="currentMatchStatus">MATCH STARTING SOON</div>
+                    
+                    <div class="status-item">
+                        <span>Total Runs:</span>
+                        <span class="status-value" id="statusRuns">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Wickets:</span>
+                        <span class="status-value" id="statusWickets">0</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Overs:</span>
+                        <span class="status-value" id="statusOvers">0.0 / 20</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Run Rate:</span>
+                        <span class="status-value" id="statusRR">0.00</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Target:</span>
+                        <span class="status-value" id="statusTarget">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Innings:</span>
+                        <span class="status-value" id="statusInnings">1st</span>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-btn next-over-btn" id="nextOverBtn">
+                            <i class="fas fa-forward"></i> NEXT OVER
+                        </button>
+                        <button class="action-btn undo-action-btn" id="undoActionBtn">
+                            <i class="fas fa-undo"></i> UNDO
+                        </button>
+                        <button class="action-btn reset-btn" id="resetMatchBtn">
+                            <i class="fas fa-redo"></i> RESET
+                        </button>
+                        <button class="action-btn save-btn" id="saveDataBtn">
+                            <i class="fas fa-save"></i> SAVE
+                        </button>
+                        <button class="action-btn pdf-btn" id="savePdfBtn">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- টার্গেট ডিসপ্লে -->
+                <div class="target-display">
+                    <div class="target-title">2nd INNINGS TARGET</div>
+                    <div class="target-value" id="targetValue">-</div>
+                    <div class="target-info" id="targetInfo">1st innings in progress</div>
+                </div>
+                
+                <!-- রান লগ -->
+                <div class="run-log">
+                    <div class="log-title">RECENT RUNS</div>
+                    <div class="log-list" id="runLogList">
+                        <div class="log-item">
+                            <span class="runs">Match Started</span>
+                            <span class="batsman">Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- নোটিফিকেশন -->
+    <div class="notification" id="notification"></div>
+    
+    <!-- নিউ ব্যাটসম্যান মডাল -->
+    <div class="modal-overlay" id="newBatsmanModal">
+        <div class="modal-content">
+            <div class="modal-title">
+                <i class="fas fa-user-plus"></i> Select New Batsman
+            </div>
+            <div class="modal-input-group">
+                <label class="modal-label">Choose next batsman:</label>
+                <select class="modal-select" id="newBatsmanSelect">
+                    <!-- অপশনগুলো ডায়নামিকভাবে লোড হবে -->
+                </select>
+            </div>
+            <div class="modal-input-group">
+                <label class="modal-label">Or add new batsman:</label>
+                <input type="text" class="input-field" id="newBatsmanModalInput" placeholder="Enter new batsman name">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-confirm" id="confirmNewBatsmanBtn">
+                    <i class="fas fa-check"></i> CONFIRM
+                </button>
+                <button class="modal-btn modal-cancel" id="cancelNewBatsmanBtn">
+                    <i class="fas fa-times"></i> CANCEL
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- নিউ বোলার মডাল -->
+    <div class="modal-overlay" id="newBowlerModal">
+        <div class="modal-content">
+            <div class="modal-title">
+                <i class="fas fa-baseball-ball"></i> Select New Bowler
+            </div>
+            <div class="modal-input-group">
+                <label class="modal-label">Choose next bowler:</label>
+                <select class="modal-select" id="newBowlerSelect">
+                    <!-- অপশনগুলো ডায়নামিকভাবে লোড হবে -->
+                </select>
+            </div>
+            <div class="modal-input-group">
+                <label class="modal-label">Or add new bowler:</label>
+                <input type="text" class="input-field" id="newBowlerModalInput" placeholder="Enter new bowler name">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-confirm" id="confirmNewBowlerBtn">
+                    <i class="fas fa-check"></i> CONFIRM
+                </button>
+                <button class="modal-btn modal-cancel" id="cancelNewBowlerBtn">
+                    <i class="fas fa-times"></i> CANCEL
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ✅ ইনিংস শেষ মডাল -->
+    <div class="modal-overlay end-innings-modal" id="endInningsModal">
+        <div class="modal-content">
+            <div class="modal-title">
+                <i class="fas fa-flag-checkered"></i> End Innings
+            </div>
+            
+            <div class="innings-summary">
+                <h3>First Innings Summary</h3>
+                <div class="innings-score" id="firstInningsScoreDisplay">0/0</div>
+                <div class="innings-info" id="firstInningsInfo">0 overs</div>
+                
+                <div class="target-display-large">
+                    <div class="target-label">TARGET FOR TEAM B</div>
+                    <div class="target-value-large" id="targetDisplayModal">1</div>
+                    <div>Required Run Rate: <span id="requiredRRDisplay">0.00</span></div>
+                </div>
+            </div>
+            
+            <div class="modal-input-group">
+                <label class="modal-label">Start Second Innings Now?</label>
+                <p style="color: #666; margin-top: 10px;">Team B needs <strong id="targetRunsDisplay">1</strong> runs to win in <strong id="targetOversDisplay">20</strong> overs.</p>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn modal-confirm" id="confirmEndInningsBtn">
+                    <i class="fas fa-play"></i> START 2ND INNINGS
+                </button>
+                <button class="modal-btn modal-cancel" id="cancelEndInningsBtn">
+                    <i class="fas fa-times"></i> CANCEL
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ✅ ম্যাচ রেজাল্ট মডাল -->
+    <div class="modal-overlay" id="matchResultModal">
+        <div class="modal-content">
+            <div class="modal-title">
+                <i class="fas fa-trophy"></i> MATCH RESULT
+            </div>
+            
+            <div class="innings-summary">
+                <h3 id="resultTitle">MATCH COMPLETED</h3>
+                <div class="target-display-large" id="resultDisplay">
+                    <!-- রেজাল্ট এখানে লোড হবে -->
+                </div>
+                
+                <div style="margin-top: 20px; text-align: left;">
+                    <h4>Score Summary:</h4>
+                    <p><strong>Team A:</strong> <span id="teamAScore">0/0</span> in <span id="teamAOvers">0.0</span> overs</p>
+                    <p><strong>Team B:</strong> <span id="teamBScore">0/0</span> in <span id="teamBOvers">0.0</span> overs</p>
+                    <p><strong>Target:</strong> <span id="matchTarget">1</span> runs</p>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn modal-confirm" id="confirmResultBtn">
+                    <i class="fas fa-check"></i> OK
+                </button>
+                <button class="modal-btn" id="resetAfterResultBtn" style="background: #2196F3; color: white;">
+                    <i class="fas fa-redo"></i> NEW MATCH
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ম্যাচ ডেটা অবজেক্ট
+        let matchData = {
+            team1: "TEAM A",
+            team2: "TEAM B",
+            tossWinner: "TEAM A",
+            tossDecision: "BAT",
+            matchStatus: "MATCH STARTING SOON",
+            innings: 1,
+            totalOvers: 20,
+            totalRuns: 0,
+            totalWickets: 0,
+            currentOver: 0,
+            currentBall: 0,
+            totalBalls: 0,
+            runRate: 0.00,
+            target: null,
+            requiredRunRate: 0.00,
+            firstInningsScore: 0,
+            firstInningsWickets: 0,
+            firstInningsBalls: 0,
+            secondInningsScore: 0,
+            secondInningsWickets: 0,
+            secondInningsBalls: 0,
+            matchResult: null,
+            
+            // কারেন্ট প্লেয়ার
+            batsman1: {
+                name: "PLAYER 1",
+                runs: 0,
+                balls: 0,
+                fours: 0,
+                sixes: 0,
+                strikerate: 0,
+                isStriker: true,
+                isOut: false
+            },
+            batsman2: {
+                name: "PLAYER 2",
+                runs: 0,
+                balls: 0,
+                fours: 0,
+                sixes: 0,
+                strikerate: 0,
+                isStriker: false,
+                isOut: false
+            },
+            bowler: {
+                name: "BOWLER 1",
+                overs: 0,
+                balls: 0,
+                maidens: 0,
+                runs: 0,
+                wickets: 0,
+                economy: 0
+            },
+            
+            // প্লেয়ার লিস্ট
+            batsmenList: [
+                { name: "PLAYER 1", runs: 0, balls: 0, fours: 0, sixes: 0, strikerate: 0, isOut: false, position: 1 },
+                { name: "PLAYER 2", runs: 0, balls: 0, fours: 0, sixes: 0, strikerate: 0, isOut: false, position: 2 },
+                { name: "PLAYER 3", runs: 0, balls: 0, fours: 0, sixes: 0, strikerate: 0, isOut: false, position: 3 },
+                { name: "PLAYER 4", runs: 0, balls: 0, fours: 0, sixes: 0, strikerate: 0, isOut: false, position: 4 }
+            ],
+            
+            bowlersList: [
+                { name: "BOWLER 1", overs: 0, balls: 0, maidens: 0, runs: 0, wickets: 0, economy: 0 },
+                { name: "BOWLER 2", overs: 0, balls: 0, maidens: 0, runs: 0, wickets: 0, economy: 0 },
+                { name: "BOWLER 3", overs: 0, balls: 0, maidens: 0, runs: 0, wickets: 0, economy: 0 }
+            ],
+            
+            // রান লগ এবং আনডো সিস্টেম
+            runLog: [],
+            recentBalls: [],
+            actionHistory: [],
+            lastUpdated: new Date().toLocaleTimeString(),
+            updateCount: 0
+        };
+
+        // মডাল এলিমেন্ট
+        const newBatsmanModal = document.getElementById('newBatsmanModal');
+        const newBowlerModal = document.getElementById('newBowlerModal');
+        const endInningsModal = document.getElementById('endInningsModal');
+        const matchResultModal = document.getElementById('matchResultModal');
+        const newBatsmanSelect = document.getElementById('newBatsmanSelect');
+        const newBowlerSelect = document.getElementById('newBowlerSelect');
+        const newBatsmanModalInput = document.getElementById('newBatsmanModalInput');
+        const newBowlerModalInput = document.getElementById('newBowlerModalInput');
+        
+        // ভ্যারিয়েবলস ফর মডাল কন্ট্রোল
+        let wicketContext = null;
+        let shouldShowBowlerModal = false;
+
+        // ✅ নতুন ফাংশন: মোট ওভার ক্যালকুলেশন
+        function calculateTotalOvers() {
+            const totalBalls = matchData.bowlersList.reduce((sum, bowler) => sum + bowler.balls, 0);
+            const fullOvers = Math.floor(totalBalls / 6);
+            const remainingBalls = totalBalls % 6;
+            return parseFloat(fullOvers + (remainingBalls / 10)).toFixed(1);
+        }
+
+        // ✅ নতুন ফাংশন: ওভার ফরম্যাটে রূপান্তর
+        function calculateOvers(balls) {
+            const fullOvers = Math.floor(balls / 6);
+            const remainingBalls = balls % 6;
+            return parseFloat(fullOvers + (remainingBalls / 10)).toFixed(1);
+        }
+
+        // ✅ ফাংশন: রান যোগ করা
+        function addRun(runs, isWicket, extraType, extraRuns) {
+            console.log("addRun called:", {runs, isWicket, extraType, extraRuns});
+            
+            // সেভ স্টেট
+            saveCurrentState();
+            
+            // বর্তমান স্ট্রাইকার নির্ধারণ
+            let striker = matchData.batsman1.isStriker ? matchData.batsman1 : matchData.batsman2;
+            
+            // বল সংখ্যা বাড়ানো (ওয়াইড/নো-বল বাদে)
+            if (extraType !== 'wide' && extraType !== 'noball') {
+                matchData.currentBall++;
+                matchData.bowler.balls++;
+                matchData.totalBalls++;
+                
+                // স্ট্রাইকারের পরিসংখ্যান আপডেট
+                striker.balls++;
+                striker.runs += parseInt(runs);
+                
+                // 4 বা 6 এর জন্য
+                if (parseInt(runs) === 4) striker.fours++;
+                if (parseInt(runs) === 6) striker.sixes++;
+                
+                // স্ট্রাইক রেট ক্যালকুলেশন
+                striker.strikerate = striker.balls > 0 ? (striker.runs / striker.balls) * 100 : 0;
+                
+                // ব্যাটসম্যান লিস্টে আপডেট
+                const batsmanInList = matchData.batsmenList.find(b => b.name === striker.name);
+                if (batsmanInList) {
+                    batsmanInList.balls++;
+                    batsmanInList.runs += parseInt(runs);
+                    if (parseInt(runs) === 4) batsmanInList.fours++;
+                    if (parseInt(runs) === 6) batsmanInList.sixes++;
+                    batsmanInList.strikerate = batsmanInList.balls > 0 ? 
+                        (batsmanInList.runs / batsmanInList.balls) * 100 : 0;
+                }
+            }
+            
+            // মোট রান ক্যালকুলেশন
+            let totalRunsFromBall = parseInt(runs) + parseInt(extraRuns);
+            matchData.totalRuns += totalRunsFromBall;
+            matchData.bowler.runs += totalRunsFromBall;
+            
+            // বোলার লিস্টে আপডেট
+            const bowlerInList = matchData.bowlersList.find(b => b.name === matchData.bowler.name);
+            if (bowlerInList) {
+                if (extraType !== 'wide' && extraType !== 'noball') {
+                    bowlerInList.balls++;
+                    bowlerInList.overs = calculateOvers(bowlerInList.balls);
+                }
+                bowlerInList.runs += totalRunsFromBall;
+                bowlerInList.economy = parseFloat(bowlerInList.overs) > 0 ? 
+                    (bowlerInList.runs / parseFloat(bowlerInList.overs)) : 0;
+            }
+            
+            // বোলারের ওভার ক্যালকুলেশন
+            matchData.bowler.overs = calculateOvers(matchData.bowler.balls);
+            matchData.bowler.economy = parseFloat(matchData.bowler.overs) > 0 ? 
+                (matchData.bowler.runs / parseFloat(matchData.bowler.overs)) : 0;
+            
+            // ✅ শেষ ৬ বলের রেকর্ড
+            let ballDescription = "";
+            if (isWicket) {
+                ballDescription = "W";
+            } else if (extraType === 'wide') {
+                ballDescription = `WD+${extraRuns}`;
+            } else if (extraType === 'noball') {
+                ballDescription = `NB+${extraRuns}`;
+            } else if (parseInt(runs) === 0) {
+                ballDescription = "0";
+            } else if (parseInt(runs) === 4) {
+                ballDescription = "4";
+            } else if (parseInt(runs) === 6) {
+                ballDescription = "6";
+            } else {
+                ballDescription = runs.toString();
+            }
+            
+            matchData.recentBalls.push(ballDescription);
+            if (matchData.recentBalls.length > 6) {
+                matchData.recentBalls.shift();
+            }
+            
+            // উইকেট
+            if (isWicket) {
+                matchData.totalWickets++;
+                matchData.bowler.wickets++;
+                
+                // স্ট্রাইকার আউট
+                striker.isOut = true;
+                
+                // ব্যাটসম্যান লিস্টে আপডেট
+                const batsmanInList = matchData.batsmenList.find(b => b.name === striker.name);
+                if (batsmanInList) {
+                    batsmanInList.isOut = true;
+                }
+                
+                // বোলার লিস্টে আপডেট
+                if (bowlerInList) {
+                    bowlerInList.wickets++;
+                }
+                
+                // নোটিফিকেশন
+                showNotification(`Wicket! ${striker.name} is out.`);
+                
+                // রান লগ এড
+                matchData.runLog.push({
+                    runs: parseInt(runs),
+                    isWicket: isWicket,
+                    extraType: extraType,
+                    extraRuns: parseInt(extraRuns),
+                    batsman: striker.name,
+                    bowler: matchData.bowler.name,
+                    timestamp: new Date().toLocaleTimeString()
+                });
+                
+                // ১০ উইকেট হলে ইনিংস শেষ চেক
+                if (matchData.totalWickets >= 10) {
+                    setTimeout(() => {
+                        if (matchData.innings === 1) {
+                            endFirstInnings();
+                        } else {
+                            checkMatchResult();
+                        }
+                    }, 1500);
+                } else {
+                    // নতুন ব্যাটসম্যান সিলেকশন মডাল শো
+                    setTimeout(() => {
+                        showNewBatsmanModal(striker.name);
+                        
+                        // ওভার শেষ হলে বোলার মডাল
+                        if (matchData.currentBall >= 6) {
+                            shouldShowBowlerModal = true;
+                        }
+                    }, 1000);
+                }
+            } else {
+                // রান লগ এড (উইকেট ছাড়া ক্ষেত্রে)
+                matchData.runLog.push({
+                    runs: parseInt(runs),
+                    isWicket: isWicket,
+                    extraType: extraType,
+                    extraRuns: parseInt(extraRuns),
+                    batsman: striker.name,
+                    bowler: matchData.bowler.name,
+                    timestamp: new Date().toLocaleTimeString()
+                });
+                
+                // নোটিফিকেশন
+                let notificationText = "";
+                if (extraType === 'wide') {
+                    notificationText = `Wide ball. ${extraRuns} run${extraRuns > 1 ? 's' : ''} added.`;
+                } else if (extraType === 'noball') {
+                    notificationText = `No ball. ${extraRuns} run${extraRuns > 1 ? 's' : ''} added.`;
+                } else if (parseInt(runs) === 0) {
+                    notificationText = `Dot ball. ${striker.name} on strike.`;
+                } else {
+                    notificationText = `${runs} run${runs > 1 ? 's' : ''} by ${striker.name}`;
+                }
+                
+                if (notificationText) {
+                    showNotification(notificationText);
+                }
+            }
+            
+            // ওড্ড রানের জন্য স্ট্রাইকার পরিবর্তন (ওভার শেষ হওয়া ছাড়া)
+            if (parseInt(runs) % 2 === 1 && extraType !== 'wide' && extraType !== 'noball' && !isWicket) {
+                matchData.batsman1.isStriker = !matchData.batsman1.isStriker;
+                matchData.batsman2.isStriker = !matchData.batsman2.isStriker;
+            }
+            
+            // ওভার শেষ হলে চেক (6 বল = 1 ওভার)
+            const isOverEnded = matchData.currentBall >= 6;
+            
+            // রান রেট ক্যালকুলেশন
+            const totalOversDecimal = matchData.totalBalls / 6;
+            matchData.runRate = totalOversDecimal > 0 ? matchData.totalRuns / totalOversDecimal : 0;
+            
+            // ২য় ইনিংসের জন্য রিকোয়ার্ড রান রেট
+            if (matchData.innings === 2 && matchData.target) {
+                const ballsRemaining = (matchData.totalOvers * 6) - matchData.totalBalls;
+                const runsNeeded = matchData.target - matchData.totalRuns;
+                matchData.requiredRunRate = ballsRemaining > 0 ? 
+                    (runsNeeded / ballsRemaining) * 6 : 0;
+                
+                // ✅ টার্গেট অর্জিত হলে ম্যাচ রেজাল্ট চেক
+                if (matchData.totalRuns >= matchData.target) {
+                    setTimeout(() => {
+                        checkMatchResult();
+                    }, 1000);
+                }
+            }
+            
+            // ম্যাচ স্ট্যাটাস আপডেট
+            if (matchData.matchStatus === "MATCH STARTING SOON") {
+                matchData.matchStatus = "IN PROGRESS";
+                document.getElementById('matchStatusInput').value = "IN PROGRESS";
+            }
+            
+            // ডিসপ্লে আপডেট
+            updateDisplay();
+            
+            // ওভার শেষ হলে নতুন বোলার সিলেকশন মডাল শো (উইকেট না হলে)
+            if (isOverEnded && !isWicket) {
+                setTimeout(() => {
+                    showNewBowlerModal();
+                }, 1000);
+            }
+            
+            // মোট ওভার শেষ হলে ইনিংস শেষ
+            if (matchData.totalBalls >= (matchData.totalOvers * 6)) {
+                setTimeout(() => {
+                    if (matchData.innings === 1) {
+                        endFirstInnings();
+                    } else {
+                        checkMatchResult();
+                    }
+                }, 1500);
+            }
+        }
+        
+        // ✅ ফাংশন: প্রথম ইনিংস শেষ
+        function endFirstInnings() {
+            saveCurrentState();
+            
+            // প্রথম ইনিংসের ডেটা সংরক্ষণ
+            matchData.firstInningsScore = matchData.totalRuns;
+            matchData.firstInningsWickets = matchData.totalWickets;
+            matchData.firstInningsBalls = matchData.totalBalls;
+            matchData.target = matchData.firstInningsScore + 1;
+            matchData.matchStatus = "INNINGS BREAK";
+            
+            // টার্গেট রিকোয়ার্ড রান রেট ক্যালকুলেশন
+            const totalBalls = matchData.totalOvers * 6;
+            matchData.requiredRunRate = (matchData.target / totalBalls) * 6;
+            
+            // ডিসপ্লে আপডেট
+            updateDisplay();
+            
+            // ইনিংস শেষ মডাল শো
+            showEndInningsModal();
+        }
+        
+        // ✅ ফাংশন: ইনিংস শেষ মডাল শো
+        function showEndInningsModal() {
+            // মডাল কন্টেন্ট আপডেট
+            document.getElementById('firstInningsScoreDisplay').textContent = 
+                `${matchData.firstInningsScore}/${matchData.firstInningsWickets}`;
+            
+            const firstInningsOvers = calculateOvers(matchData.firstInningsBalls);
+            document.getElementById('firstInningsInfo').textContent = 
+                `${firstInningsOvers} overs • Run Rate: ${(matchData.firstInningsScore / (matchData.firstInningsBalls/6)).toFixed(2)}`;
+            
+            document.getElementById('targetDisplayModal').textContent = matchData.target;
+            document.getElementById('requiredRRDisplay').textContent = matchData.requiredRunRate.toFixed(2);
+            document.getElementById('targetRunsDisplay').textContent = matchData.target;
+            document.getElementById('targetOversDisplay').textContent = matchData.totalOvers;
+            
+            // মডাল শো
+            endInningsModal.style.display = 'flex';
+        }
+        
+        // ✅ ফাংশন: দ্বিতীয় ইনিংস শুরু
+        function startSecondInnings() {
+            saveCurrentState();
+            
+            matchData.innings = 2;
+            matchData.totalRuns = 0;
+            matchData.totalWickets = 0;
+            matchData.totalBalls = 0;
+            matchData.currentOver = 0;
+            matchData.currentBall = 0;
+            matchData.runRate = 0;
+            matchData.matchStatus = "IN PROGRESS";
+            
+            // ব্যাটসম্যান রিসেট
+            matchData.batsman1 = {
+                name: matchData.batsmenList.find(b => !b.isOut)?.name || "PLAYER 1",
+                runs: 0,
+                balls: 0,
+                fours: 0,
+                sixes: 0,
+                strikerate: 0,
+                isStriker: true,
+                isOut: false
+            };
+            
+            matchData.batsman2 = {
+                name: matchData.batsmenList.find(b => b.name !== matchData.batsman1.name && !b.isOut)?.name || "PLAYER 2",
+                runs: 0,
+                balls: 0,
+                fours: 0,
+                sixes: 0,
+                strikerate: 0,
+                isStriker: false,
+                isOut: false
+            };
+            
+            // বোলার রিসেট
+            matchData.bowler = {
+                name: matchData.bowlersList[0]?.name || "BOWLER 1",
+                overs: 0,
+                balls: 0,
+                maidens: 0,
+                runs: 0,
+                wickets: 0,
+                economy: 0
+            };
+            
+            // রান লগ ক্লিয়ার
+            matchData.runLog = [];
+            matchData.recentBalls = [];
+            
+            // ব্যাটসম্যান লিস্ট রিসেট (আউট স্ট্যাটাস ছাড়া)
+            matchData.batsmenList.forEach(batsman => {
+                batsman.runs = 0;
+                batsman.balls = 0;
+                batsman.fours = 0;
+                batsman.sixes = 0;
+                batsman.strikerate = 0;
+                batsman.isOut = false;
+            });
+            
+            // বোলার লিস্ট রিসেট
+            matchData.bowlersList.forEach(bowler => {
+                bowler.overs = 0;
+                bowler.balls = 0;
+                bowler.runs = 0;
+                bowler.wickets = 0;
+                bowler.economy = 0;
+            });
+            
+            showNotification("Second innings started! Target: " + matchData.target);
+            updateDisplay();
+        }
+        
+        // ✅ ফাংশন: ম্যাচ রেজাল্ট চেক
+        function checkMatchResult() {
+            saveCurrentState();
+            
+            matchData.secondInningsScore = matchData.totalRuns;
+            matchData.secondInningsWickets = matchData.totalWickets;
+            matchData.secondInningsBalls = matchData.totalBalls;
+            
+            let result = "";
+            let winner = "";
+            let winBy = "";
+            
+            if (matchData.totalRuns >= matchData.target) {
+                // Team B wins
+                winner = matchData.tossDecision === "BAT" ? matchData.team2 : matchData.team1;
+                const wicketsLeft = 10 - matchData.totalWickets;
+                winBy = `${wicketsLeft} wicket${wicketsLeft !== 1 ? 's' : ''}`;
+                result = `${winner} won by ${winBy}`;
+                matchData.matchResult = {
+                    winner: winner,
+                    winBy: winBy,
+                    winType: "wickets",
+                    margin: wicketsLeft
+                };
+            } else {
+                // Team A wins
+                winner = matchData.tossDecision === "BAT" ? matchData.team1 : matchData.team2;
+                const runsMargin = matchData.target - matchData.totalRuns - 1;
+                winBy = `${runsMargin} run${runsMargin !== 1 ? 's' : ''}`;
+                result = `${winner} won by ${winBy}`;
+                matchData.matchResult = {
+                    winner: winner,
+                    winBy: winBy,
+                    winType: "runs",
+                    margin: runsMargin
+                };
+            }
+            
+            matchData.matchStatus = "MATCH ENDED";
+            
+            // ম্যাচ রেজাল্ট মডাল শো
+            showMatchResultModal(result);
+            
+            updateDisplay();
+        }
+        
+        // ✅ ফাংশন: ম্যাচ রেজাল্ট মডাল শো
+        function showMatchResultModal(result) {
+            // রেজাল্ট কন্টেন্ট সেট
+            document.getElementById('resultTitle').textContent = "MATCH RESULT";
+            document.getElementById('resultDisplay').innerHTML = `
+                <div style="font-size: 2.5rem; font-weight: 800; margin: 10px 0;">${result}</div>
+                <div style="font-size: 1.2rem; margin-top: 10px;">
+                    ${matchData.team1}: ${matchData.firstInningsScore}/${matchData.firstInningsWickets}<br>
+                    ${matchData.team2}: ${matchData.secondInningsScore}/${matchData.secondInningsWickets}
+                </div>
+            `;
+            
+            // স্কোর সামারি
+            const firstInningsOvers = calculateOvers(matchData.firstInningsBalls);
+            const secondInningsOvers = calculateOvers(matchData.secondInningsBalls);
+            
+            document.getElementById('teamAScore').textContent = 
+                `${matchData.firstInningsScore}/${matchData.firstInningsWickets}`;
+            document.getElementById('teamAOvers').textContent = firstInningsOvers;
+            
+            document.getElementById('teamBScore').textContent = 
+                `${matchData.secondInningsScore}/${matchData.secondInningsWickets}`;
+            document.getElementById('teamBOvers').textContent = secondInningsOvers;
+            
+            document.getElementById('matchTarget').textContent = matchData.target;
+            
+            // মডাল শো
+            matchResultModal.style.display = 'flex';
+        }
+        
+        // ✅ ফাংশন: ইনিংস ম্যানুয়ালি শেষ করা
+        function endCurrentInnings() {
+            if (matchData.matchStatus !== "IN PROGRESS") {
+                showError("Match is not in progress");
+                return;
+            }
+            
+            if (confirm(`End current innings?\n\nCurrent Score: ${matchData.totalRuns}/${matchData.totalWickets}`)) {
+                if (matchData.innings === 1) {
+                    endFirstInnings();
+                } else {
+                    checkMatchResult();
+                }
+            }
+        }
+        
+        // পরবর্তী ওভার
+        function nextOver() {
+            console.log("nextOver called");
+            
+            saveCurrentState();
+            
+            // ওভার বাড়ানো
+            matchData.currentOver++;
+            
+            // বল রিসেট (নতুন ওভার শুরু)
+            matchData.currentBall = 0;
+            
+            // বর্তমান বোলারের পরিসংখ্যান আপডেট
+            matchData.bowler.overs = calculateOvers(matchData.bowler.balls);
+            
+            // ওভার শেষ হলে স্ট্রাইকার পরিবর্তন (6 বল পর)
+            matchData.batsman1.isStriker = !matchData.batsman1.isStriker;
+            matchData.batsman2.isStriker = !matchData.batsman2.isStriker;
+            
+            // ডিসপ্লে আপডেট
+            updateDisplay();
+            
+            // নতুন বোলার সিলেকশন মডাল শো
+            setTimeout(() => {
+                showNewBowlerModal();
+            }, 500);
+        }
+
+        // ডিসপ্লে আপডেট ফাংশন
+        function updateDisplay() {
+            // ম্যাচ স্ট্যাটাস
+            document.getElementById('currentMatchStatus').textContent = matchData.matchStatus;
+            
+            // রান এনিমেশন সহ ডিসপ্লে
+            const runsElement = document.getElementById('statusRuns');
+            if (runsElement.textContent !== matchData.totalRuns.toString()) {
+                runsElement.style.color = '#4CAF50';
+                runsElement.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    runsElement.style.color = '#1a237e';
+                    runsElement.style.transform = 'scale(1)';
+                }, 300);
+            }
+            runsElement.textContent = matchData.totalRuns;
+            
+            document.getElementById('statusWickets').textContent = matchData.totalWickets;
+            
+            // মোট ওভার ডিসপ্লে
+            const totalOvers = calculateTotalOvers();
+            document.getElementById('statusOvers').textContent = `${totalOvers} / ${matchData.totalOvers}`;
+            
+            // ছোট ফন্টে রান রেট
+            document.getElementById('statusRR').textContent = matchData.runRate.toFixed(2);
+            
+            // ইনিংস ডিসপ্লে
+            document.getElementById('statusInnings').textContent = matchData.innings === 1 ? "1st" : "2nd";
+            
+            // টার্গেট ডিসপ্লে
+            if (matchData.innings === 2 && matchData.target) {
+                document.getElementById('statusTarget').textContent = `${matchData.target} (RRR: ${matchData.requiredRunRate.toFixed(2)})`;
+                document.getElementById('targetValue').textContent = matchData.target;
+                
+                const ballsRemaining = (matchData.totalOvers * 6) - matchData.totalBalls;
+                const runsNeeded = matchData.target - matchData.totalRuns;
+                const oversRemaining = (ballsRemaining / 6).toFixed(1);
+                
+                if (runsNeeded > 0) {
+                    document.getElementById('targetInfo').textContent = `Need ${runsNeeded} runs in ${ballsRemaining} balls (${oversRemaining} overs)`;
+                } else {
+                    document.getElementById('targetInfo').textContent = `WON! ${matchData.totalRuns}/${matchData.totalWickets}`;
+                }
+            } else {
+                document.getElementById('statusTarget').textContent = "-";
+                document.getElementById('targetValue').textContent = "-";
+                document.getElementById('targetInfo').textContent = matchData.innings === 1 ? "1st innings in progress" : "Target not set";
+            }
+            
+            // ইনপুট ফিল্ড আপডেট
+            document.getElementById('batsman1Input').value = matchData.batsman1.name;
+            document.getElementById('batsman2Input').value = matchData.batsman2.name;
+            document.getElementById('bowlerInput').value = matchData.bowler.name;
+            document.getElementById('team1Input').value = matchData.team1;
+            document.getElementById('team2Input').value = matchData.team2;
+            document.getElementById('tossWinnerInput').value = matchData.tossWinner;
+            document.getElementById('tossDecisionInput').value = matchData.tossDecision;
+            document.getElementById('matchStatusInput').value = matchData.matchStatus;
+            document.getElementById('totalOversInput').value = matchData.totalOvers;
+            
+            // স্ট্রাইকার চেকবক্স আপডেট
+            document.getElementById('batsman1Striker').checked = matchData.batsman1.isStriker;
+            document.getElementById('batsman2Striker').checked = matchData.batsman2.isStriker;
+            
+            // প্লেয়ার গ্রুপ সক্রিয়তা আপডেট
+            document.getElementById('batsman1Group').classList.toggle('active', matchData.batsman1.isStriker);
+            document.getElementById('batsman2Group').classList.toggle('active', matchData.batsman2.isStriker);
+            
+            // রান লগ আপডেট
+            updateRunLog();
+            
+            // লোকাল স্টোরেজে সেভ
+            saveToLocalStorage();
+        }
+
+        // ফাংশন: রান লগ আপডেট
+        function updateRunLog() {
+            const runLogList = document.getElementById('runLogList');
+            runLogList.innerHTML = '';
+            
+            // শেষ ৬ বল দেখানো
+            if (matchData.recentBalls.length > 0) {
+                const recentBalls = [...matchData.recentBalls].reverse();
+                
+                recentBalls.forEach((ball, index) => {
+                    const logItem = document.createElement('div');
+                    logItem.className = 'log-item';
+                    
+                    logItem.innerHTML = `
+                        <span class="runs">Ball ${recentBalls.length - index}: ${ball}</span>
+                        <span class="batsman">${matchData.runLog[matchData.runLog.length - (index + 1)]?.batsman || '-'}</span>
+                    `;
+                    
+                    runLogList.appendChild(logItem);
+                });
+            } else {
+                const emptyItem = document.createElement('div');
+                emptyItem.className = 'log-item';
+                emptyItem.textContent = 'No balls bowled yet';
+                runLogList.appendChild(emptyItem);
+            }
+        }
+
+        // ফাংশন: আনডো লাস্ট অ্যাকশন
+        function undoLastAction() {
+            if (matchData.actionHistory.length > 0) {
+                const lastState = matchData.actionHistory.pop();
+                
+                matchData.batsman1 = lastState.batsman1;
+                matchData.batsman2 = lastState.batsman2;
+                matchData.bowler = lastState.bowler;
+                matchData.totalRuns = lastState.totalRuns;
+                matchData.totalWickets = lastState.totalWickets;
+                matchData.currentOver = lastState.currentOver;
+                matchData.currentBall = lastState.currentBall;
+                matchData.totalBalls = lastState.totalBalls;
+                matchData.runRate = lastState.runRate;
+                matchData.runLog = lastState.runLog;
+                matchData.recentBalls = lastState.recentBalls;
+                matchData.batsmenList = lastState.batsmenList;
+                matchData.bowlersList = lastState.bowlersList;
+                matchData.innings = lastState.innings;
+                matchData.target = lastState.target;
+                matchData.firstInningsScore = lastState.firstInningsScore;
+                matchData.firstInningsWickets = lastState.firstInningsWickets;
+                matchData.firstInningsBalls = lastState.firstInningsBalls;
+                matchData.secondInningsScore = lastState.secondInningsScore;
+                matchData.secondInningsWickets = lastState.secondInningsWickets;
+                matchData.secondInningsBalls = lastState.secondInningsBalls;
+                matchData.matchResult = lastState.matchResult;
+                matchData.matchStatus = lastState.matchStatus;
+                
+                showNotification("Last action undone");
+                updateDisplay();
+            } else {
+                showError("No actions to undo");
+            }
+        }
+
+        // ফাংশন: সেভ কারেন্ট স্টেট
+        function saveCurrentState() {
+            const currentState = JSON.parse(JSON.stringify({
+                batsman1: {...matchData.batsman1},
+                batsman2: {...matchData.batsman2},
+                bowler: {...matchData.bowler},
+                totalRuns: matchData.totalRuns,
+                totalWickets: matchData.totalWickets,
+                currentOver: matchData.currentOver,
+                currentBall: matchData.currentBall,
+                totalBalls: matchData.totalBalls,
+                runRate: matchData.runRate,
+                runLog: [...matchData.runLog],
+                recentBalls: [...matchData.recentBalls],
+                batsmenList: JSON.parse(JSON.stringify(matchData.batsmenList)),
+                bowlersList: JSON.parse(JSON.stringify(matchData.bowlersList)),
+                innings: matchData.innings,
+                target: matchData.target,
+                firstInningsScore: matchData.firstInningsScore,
+                firstInningsWickets: matchData.firstInningsWickets,
+                firstInningsBalls: matchData.firstInningsBalls,
+                secondInningsScore: matchData.secondInningsScore,
+                secondInningsWickets: matchData.secondInningsWickets,
+                secondInningsBalls: matchData.secondInningsBalls,
+                matchResult: matchData.matchResult,
+                matchStatus: matchData.matchStatus
+            }));
+            
+            matchData.actionHistory.push(currentState);
+            
+            if (matchData.actionHistory.length > 20) {
+                matchData.actionHistory.shift();
+            }
+        }
+
+        // ফাংশন: লোকাল স্টোরেজে সেভ
+        function saveToLocalStorage() {
+            try {
+                matchData.lastUpdated = new Date().toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                localStorage.setItem('cricketMatchData', JSON.stringify(matchData));
+                matchData.updateCount++;
+                document.getElementById('updateCount').textContent = matchData.updateCount;
+            } catch (e) {
+                console.log("Error saving data:", e);
+            }
+        }
+
+        // ফাংশন: রিসেট ম্যাচ
+        function resetMatch() {
+            if (confirm("Are you sure you want to reset the match? All data will be lost.")) {
+                matchData = {
+                    team1: "TEAM A",
+                    team2: "TEAM B",
+                    tossWinner: "TEAM A",
+                    tossDecision: "BAT",
+                    matchStatus: "MATCH STARTING SOON",
+                    innings: 1,
+                    totalOvers: 20,
+                    totalRuns: 0,
+                    totalWickets: 0,
+                    currentOver: 0,
+                    currentBall: 0,
+                    totalBalls: 0,
+                    runRate: 0.00,
+                    target: null,
+                    requiredRunRate: 0.00,
+                    firstInningsScore: 0,
+                    firstInningsWickets: 0,
+                    firstInningsBalls: 0,
+                    secondInningsScore: 0,
+                    secondInningsWickets: 0,
+                    secondInningsBalls: 0,
+                    matchResult: null,
+                    
+                    batsman1: {
+                        name: "PLAYER 1",
+                        runs: 0,
+                        balls: 0,
+                        fours: 0,
+                        sixes: 0,
+                        strikerate: 0,
+                        isStriker: true,
+                        isOut: false
+                    },
+                    batsman2: {
+                        name: "PLAYER 2",
+                        runs: 0,
+                        balls: 0,
+                        fours: 0,
+                        sixes: 0,
+                        strikerate: 0,
+                        isStriker: false,
+                        isOut: false
+                    },
+                    bowler: {
+                        name: "BOWLER 1",
+                        overs: 0,
+                        balls: 0,
+                        maidens: 0,
+                        runs: 0,
+                        wickets: 0,
+                        economy: 0
+                    },
+                    
+                    batsmenList: [
+                        { name: "PLAYER 1", runs: 0, balls: 0, fours: 0, sixes: 0, strikerate: 0, isOut: false, position: 1 },
+                        { name: "PLAYER 2", runs: 0, balls: 0, fours: 0, sixes: 0, strikerate: 0, isOut: false, position: 2 },
+                        { name: "PLAYER 3", runs: 0, balls: 0, fours: 0, sixes: 0, strikerate: 0, isOut: false, position: 3 },
+                        { name: "PLAYER 4", runs: 0, balls: 0, fours: 0, sixes: 0, strikerate: 0, isOut: false, position: 4 }
+                    ],
+                    
+                    bowlersList: [
+                        { name: "BOWLER 1", overs: 0, balls: 0, maidens: 0, runs: 0, wickets: 0, economy: 0 },
+                        { name: "BOWLER 2", overs: 0, balls: 0, maidens: 0, runs: 0, wickets: 0, economy: 0 },
+                        { name: "BOWLER 3", overs: 0, balls: 0, maidens: 0, runs: 0, wickets: 0, economy: 0 }
+                    ],
+                    
+                    runLog: [],
+                    recentBalls: [],
+                    actionHistory: [],
+                    lastUpdated: new Date().toLocaleTimeString(),
+                    updateCount: 0
+                };
+                
+                localStorage.removeItem('cricketMatchData');
+                showNotification("Match reset successfully");
+                updateDisplay();
+            }
+        }
+
+        // ফাংশন: নোটিফিকেশন
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            notification.style.background = '#4caf50';
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                    notification.style.animation = '';
+                }, 300);
+            }, 3000);
+        }
+
+        // ফাংশন: এরর নোটিফিকেশন
+        function showError(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            notification.style.background = '#f44336';
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                    notification.style.animation = '';
+                }, 300);
+            }, 3000);
+        }
+
+        // ইভেন্ট লিসেনার সেটআপ
+        function setupEventListeners() {
+            console.log("Setting up event listeners...");
+            
+            // রান বাটন ইভেন্ট
+            document.querySelectorAll('.run-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    console.log("Run button clicked");
+                    const runs = this.getAttribute('data-runs');
+                    addRun(runs, false, 'none', 0);
+                });
+            });
+            
+            // এক্সট্রা বাটন ইভেন্ট
+            document.getElementById('wicketBtn').addEventListener('click', () => {
+                console.log("Wicket button clicked");
+                addRun(0, true, 'none', 0);
+            });
+            
+            document.getElementById('wideBtn').addEventListener('click', () => {
+                const extraRuns = parseInt(document.getElementById('extraRuns').value) || 1;
+                console.log("Wide button clicked");
+                addRun(0, false, 'wide', extraRuns);
+            });
+            
+            document.getElementById('noballBtn').addEventListener('click', () => {
+                const extraRuns = parseInt(document.getElementById('extraRuns').value) || 1;
+                console.log("No ball button clicked");
+                addRun(0, false, 'noball', extraRuns);
+            });
+            
+            document.getElementById('byeBtn').addEventListener('click', () => {
+                console.log("Bye button clicked");
+                addRun(1, false, 'bye', 0);
+            });
+            
+            document.getElementById('legbyeBtn').addEventListener('click', () => {
+                console.log("Leg bye button clicked");
+                addRun(1, false, 'legbye', 0);
+            });
+            
+            // আনডো বাটন ইভেন্ট
+            document.getElementById('undoBtn').addEventListener('click', undoLastAction);
+            document.getElementById('undoActionBtn').addEventListener('click', undoLastAction);
+            
+            // নেক্সট ওভার বাটন
+            document.getElementById('nextOverBtn').addEventListener('click', nextOver);
+            
+            // রিসেট বাটন
+            document.getElementById('resetMatchBtn').addEventListener('click', resetMatch);
+            
+            // সেভ বাটন
+            document.getElementById('saveDataBtn').addEventListener('click', () => {
+                saveToLocalStorage();
+                showNotification("Data saved successfully!");
+            });
+            
+            // ইনিংস শেষ বাটন
+            document.getElementById('endInningsBtn').addEventListener('click', endCurrentInnings);
+            
+            // ✅ মডাল বাটন ইভেন্ট - নতুন
+            document.getElementById('confirmEndInningsBtn').addEventListener('click', () => {
+                endInningsModal.style.display = 'none';
+                startSecondInnings();
+            });
+            
+            document.getElementById('cancelEndInningsBtn').addEventListener('click', () => {
+                endInningsModal.style.display = 'none';
+                showNotification("Second innings start cancelled");
+            });
+            
+            document.getElementById('confirmResultBtn').addEventListener('click', () => {
+                matchResultModal.style.display = 'none';
+            });
+            
+            document.getElementById('resetAfterResultBtn').addEventListener('click', () => {
+                matchResultModal.style.display = 'none';
+                resetMatch();
+            });
+            
+            // মডাল বাটন ইভেন্ট
+            document.getElementById('confirmNewBatsmanBtn').addEventListener('click', confirmNewBatsman);
+            document.getElementById('cancelNewBatsmanBtn').addEventListener('click', cancelNewBatsman);
+            document.getElementById('confirmNewBowlerBtn').addEventListener('click', confirmNewBowler);
+            document.getElementById('cancelNewBowlerBtn').addEventListener('click', cancelNewBowler);
+            
+            // মডাল ক্লিক করে বন্ধ করার ইভেন্ট
+            newBatsmanModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    cancelNewBatsman();
+                }
+            });
+            
+            newBowlerModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    cancelNewBowler();
+                }
+            });
+            
+            endInningsModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    endInningsModal.style.display = 'none';
+                }
+            });
+            
+            matchResultModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    matchResultModal.style.display = 'none';
+                }
+            });
+            
+            // প্লেয়ার আপডেট বাটন
+            document.getElementById('updateBatsman1Btn').addEventListener('click', () => {
+                const newName = document.getElementById('batsman1Input').value.trim().toUpperCase();
+                if (newName) {
+                    matchData.batsman1.name = newName;
+                    updateDisplay();
+                    showNotification(`Batsman 1 updated to ${newName}`);
+                }
+            });
+            
+            document.getElementById('updateBatsman2Btn').addEventListener('click', () => {
+                const newName = document.getElementById('batsman2Input').value.trim().toUpperCase();
+                if (newName) {
+                    matchData.batsman2.name = newName;
+                    updateDisplay();
+                    showNotification(`Batsman 2 updated to ${newName}`);
+                }
+            });
+            
+            document.getElementById('updateBowlerBtn').addEventListener('click', () => {
+                const newName = document.getElementById('bowlerInput').value.trim().toUpperCase();
+                if (newName) {
+                    matchData.bowler.name = newName;
+                    updateDisplay();
+                    showNotification(`Bowler updated to ${newName}`);
+                }
+            });
+            
+            // নতুন প্লেয়ার এড বাটন
+            document.getElementById('addNewBatsmanBtn').addEventListener('click', () => {
+                const newName = document.getElementById('newBatsmanInput').value.trim().toUpperCase();
+                if (newName) {
+                    matchData.batsmenList.push({
+                        name: newName,
+                        runs: 0,
+                        balls: 0,
+                        fours: 0,
+                        sixes: 0,
+                        strikerate: 0,
+                        isOut: false,
+                        position: matchData.batsmenList.length + 1
+                    });
+                    document.getElementById('newBatsmanInput').value = '';
+                    showNotification(`New batsman ${newName} added to squad`);
+                }
+            });
+            
+            document.getElementById('addNewBowlerBtn').addEventListener('click', () => {
+                const newName = document.getElementById('newBowlerInput').value.trim().toUpperCase();
+                if (newName) {
+                    matchData.bowlersList.push({
+                        name: newName,
+                        overs: 0,
+                        balls: 0,
+                        maidens: 0,
+                        runs: 0,
+                        wickets: 0,
+                        economy: 0
+                    });
+                    document.getElementById('newBowlerInput').value = '';
+                    showNotification(`New bowler ${newName} added to squad`);
+                }
+            });
+            
+            // ম্যাচ সেটআপ ফিল্ড আপডেট
+            document.getElementById('team1Input').addEventListener('change', function() {
+                matchData.team1 = this.value.toUpperCase();
+                updateDisplay();
+            });
+            
+            document.getElementById('team2Input').addEventListener('change', function() {
+                matchData.team2 = this.value.toUpperCase();
+                updateDisplay();
+            });
+            
+            document.getElementById('totalOversInput').addEventListener('change', function() {
+                matchData.totalOvers = parseInt(this.value) || 20;
+                updateDisplay();
+            });
+            
+            document.getElementById('tossWinnerInput').addEventListener('change', function() {
+                matchData.tossWinner = this.value;
+                updateDisplay();
+            });
+            
+            document.getElementById('tossDecisionInput').addEventListener('change', function() {
+                matchData.tossDecision = this.value;
+                updateDisplay();
+            });
+            
+            document.getElementById('matchStatusInput').addEventListener('change', function() {
+                matchData.matchStatus = this.value;
+                updateDisplay();
+            });
+            
+            // স্ট্রাইকার টগল
+            document.getElementById('batsman1Striker').addEventListener('change', function() {
+                if (this.checked) {
+                    matchData.batsman1.isStriker = true;
+                    matchData.batsman2.isStriker = false;
+                    document.getElementById('batsman2Striker').checked = false;
+                }
+                updateDisplay();
+            });
+            
+            document.getElementById('batsman2Striker').addEventListener('change', function() {
+                if (this.checked) {
+                    matchData.batsman2.isStriker = true;
+                    matchData.batsman1.isStriker = false;
+                    document.getElementById('batsman1Striker').checked = false;
+                }
+                updateDisplay();
+            });
+            
+            console.log("All event listeners set up successfully");
+        }
+
+        // ফাংশন: মডাল কন্ট্রোল (বাকি ফাংশনগুলো)
+        function showNewBatsmanModal(outBatsman) {
+            wicketContext = { outBatsman: outBatsman };
+            const availableBatsmen = matchData.batsmenList.filter(batsman => 
+                !batsman.isOut && 
+                batsman.name !== matchData.batsman1.name && 
+                batsman.name !== matchData.batsman2.name
+            );
+            
+            newBatsmanSelect.innerHTML = '<option value="">Select a batsman</option>';
+            availableBatsmen.forEach(batsman => {
+                const option = document.createElement('option');
+                option.value = batsman.name;
+                option.textContent = batsman.name;
+                newBatsmanSelect.appendChild(option);
+            });
+            
+            newBatsmanModalInput.value = "";
+            newBatsmanModal.style.display = 'flex';
+        }
+        
+        function showNewBowlerModal() {
+            const availableBowlers = matchData.bowlersList.filter(bowler => 
+                bowler.name !== matchData.bowler.name
+            );
+            
+            newBowlerSelect.innerHTML = '<option value="">Select a bowler</option>';
+            availableBowlers.forEach(bowler => {
+                const option = document.createElement('option');
+                option.value = bowler.name;
+                option.textContent = bowler.name;
+                newBowlerSelect.appendChild(option);
+            });
+            
+            newBowlerModalInput.value = "";
+            newBowlerModal.style.display = 'flex';
+        }
+
+        function confirmNewBatsman() {
+            let selectedBatsman = newBatsmanSelect.value;
+            
+            if (!selectedBatsman && newBatsmanModalInput.value.trim()) {
+                selectedBatsman = newBatsmanModalInput.value.trim().toUpperCase();
+                matchData.batsmenList.push({
+                    name: selectedBatsman,
+                    runs: 0,
+                    balls: 0,
+                    fours: 0,
+                    sixes: 0,
+                    strikerate: 0,
+                    isOut: false,
+                    position: matchData.batsmenList.length + 1
+                });
+            }
+            
+            if (!selectedBatsman) {
+                showError("Please select or enter a batsman name");
+                return;
+            }
+            
+            if (wicketContext && wicketContext.outBatsman) {
+                if (wicketContext.outBatsman === matchData.batsman1.name) {
+                    matchData.batsman1 = {
+                        name: selectedBatsman,
+                        runs: 0,
+                        balls: 0,
+                        fours: 0,
+                        sixes: 0,
+                        strikerate: 0,
+                        isStriker: true,
+                        isOut: false
+                    };
+                } else {
+                    matchData.batsman2 = {
+                        name: selectedBatsman,
+                        runs: 0,
+                        balls: 0,
+                        fours: 0,
+                        sixes: 0,
+                        strikerate: 0,
+                        isStriker: false,
+                        isOut: false
+                    };
+                }
+                
+                const batsmanInList = matchData.batsmenList.find(b => b.name === selectedBatsman);
+                if (!batsmanInList) {
+                    matchData.batsmenList.push({
+                        name: selectedBatsman,
+                        runs: 0,
+                        balls: 0,
+                        fours: 0,
+                        sixes: 0,
+                        strikerate: 0,
+                        isOut: false,
+                        position: matchData.batsmenList.length + 1
+                    });
+                }
+            }
+            
+            newBatsmanModal.style.display = 'none';
+            wicketContext = null;
+            
+            showNotification(`New batsman ${selectedBatsman} joined the crease`);
+            updateDisplay();
+            
+            if (shouldShowBowlerModal) {
+                setTimeout(() => {
+                    showNewBowlerModal();
+                    shouldShowBowlerModal = false;
+                }, 1000);
+            }
+        }
+        
+        function confirmNewBowler() {
+            let selectedBowler = newBowlerSelect.value;
+            
+            if (!selectedBowler && newBowlerModalInput.value.trim()) {
+                selectedBowler = newBowlerModalInput.value.trim().toUpperCase();
+                matchData.bowlersList.push({
+                    name: selectedBowler,
+                    overs: 0,
+                    balls: 0,
+                    maidens: 0,
+                    runs: 0,
+                    wickets: 0,
+                    economy: 0
+                });
+            }
+            
+            if (!selectedBowler) {
+                showError("Please select or enter a bowler name");
+                return;
+            }
+            
+            const currentBowlerInList = matchData.bowlersList.find(b => b.name === matchData.bowler.name);
+            if (currentBowlerInList) {
+                currentBowlerInList.overs = calculateOvers(matchData.bowler.balls);
+                currentBowlerInList.balls = matchData.bowler.balls;
+                currentBowlerInList.runs = matchData.bowler.runs;
+                currentBowlerInList.wickets = matchData.bowler.wickets;
+                currentBowlerInList.economy = matchData.bowler.economy;
+            }
+            
+            const newBowlerData = matchData.bowlersList.find(b => b.name === selectedBowler);
+            if (newBowlerData) {
+                matchData.bowler = {
+                    name: selectedBowler,
+                    overs: 0,
+                    balls: 0,
+                    maidens: 0,
+                    runs: 0,
+                    wickets: 0,
+                    economy: 0
+                };
+            } else {
+                matchData.bowler = {
+                    name: selectedBowler,
+                    overs: 0,
+                    balls: 0,
+                    maidens: 0,
+                    runs: 0,
+                    wickets: 0,
+                    economy: 0
+                };
+            }
+            
+            matchData.currentBall = 0;
+            newBowlerModal.style.display = 'none';
+            
+            showNotification(`New bowler ${selectedBowler} starts bowling`);
+            updateDisplay();
+        }
+        
+        function cancelNewBatsman() {
+            newBatsmanModal.style.display = 'none';
+            wicketContext = null;
+            showNotification("Batsman selection cancelled");
+            
+            if (shouldShowBowlerModal) {
+                setTimeout(() => {
+                    showNewBowlerModal();
+                    shouldShowBowlerModal = false;
+                }, 1000);
+            }
+        }
+        
+        function cancelNewBowler() {
+            newBowlerModal.style.display = 'none';
+            showNotification("Bowler selection cancelled");
+        }
+
+        // ডেটা লোড ফাংশন
+        function loadSavedData() {
+            try {
+                const savedData = localStorage.getItem('cricketMatchData');
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    if (parsedData && parsedData.team1 && parsedData.team2) {
+                        matchData = parsedData;
+                        console.log("Saved data loaded successfully");
+                        showNotification("Previous match data loaded");
+                    }
+                }
+            } catch (e) {
+                console.log("Error loading saved data:", e);
+            }
+        }
+
+        // পেজ লোড হলে
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM loaded, initializing...");
+            
+            loadSavedData();
+            setupEventListeners();
+            updateDisplay();
+            
+            console.log("Control panel initialized successfully");
+        });
+        
+    </script>
+</body>
+</html>
